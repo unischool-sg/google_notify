@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HasChildrenRoute, BaseRoute } from "./types/routes";
 import { routes } from "./config/routes";
-import { IndexPage } from "./app/index";
 import Layout from "./components/layout/layout";
 import "./App.css";
 
@@ -25,8 +24,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<IndexPage />} />
-
         <Route element={<Layout />}>
           {flatRoutes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
