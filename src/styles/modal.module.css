@@ -1,3 +1,7 @@
+* {
+  --y_padding: 1rem;
+  --x_padding: 2rem;
+}
 .overlay {
   position: fixed;
   inset: 0;
@@ -11,8 +15,11 @@
 .content {
   background: #fff;
   border-radius: 8px;
-  padding: 24px;
-  min-width: 320px;
+  padding-top: var(--y_padding);
+  padding-bottom: var(--y_padding);
+  padding-left: var(--x_padding);
+  padding-right: var(--x_padding);
+  min-width: 70vw;
   max-width: 90vw;
   max-height: 85vh;
   overflow-y: auto;
