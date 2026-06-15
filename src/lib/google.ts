@@ -7,7 +7,9 @@ class GoogleAPIClient {
     this.apiBaseUrl = apiBaseUrl ?? "https://www.googleapis.com";
   }
 
-  async fetch(endpoint: string, options: RequestInit = {}): Promise<any> {
+  async fetch(endpoint: string, options: RequestInit = {
+    method: "GET",
+  }): Promise<Response> {
     const url = `${this.apiBaseUrl}${endpoint}`;
     const headers = {
       "Authorization": `Bearer ${this.accessToken}`,
@@ -15,16 +17,10 @@ class GoogleAPIClient {
       ...options.headers,
     };
 
-    const response = await fetch(url, {
+    return fetch(url, {
       ...options,
       headers,
     });
-
-    if (!response.ok) {
-      throw new Error(`Google API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json();
   }
 }
 
