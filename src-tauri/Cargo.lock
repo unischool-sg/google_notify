@@ -1394,11 +1394,13 @@ dependencies = [
 name = "google_notify"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
  "dotenvy",
  "rand",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "sha2",
  "tauri",
  "tauri-build",
  "tauri-plugin-fs",
