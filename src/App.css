@@ -3,14 +3,23 @@
 }
 
 .loading {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #fff;
   font-size: 1.5rem;
+}
+
+.loading.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.loading.inset {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
 }
 
 .loading div {
