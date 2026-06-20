@@ -36,7 +36,7 @@ const SessionProvider = () => {
     } else {
       sessionStorage.removeItem("profile");
     }
-  }, [profile]);
+  }, [profile, error]);
 
   const handleButtonClick = async () => {
     setIsLoggingIn(true);
