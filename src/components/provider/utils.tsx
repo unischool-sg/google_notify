@@ -3,8 +3,9 @@ import { useEffect } from "react"
 const UtilsProvider = () => {
   useEffect(() => {
     const timer = setInterval(() => {
-      localStorage.setItem("latest_view", new Date().toISOString());
-    }, 60 * 1000);
+      if (sessionStorage.getItem("profile")) // ログインできているなら
+        localStorage.setItem("latest_view", new Date().toISOString());
+    }, 10 * 1000);
 
     return () => clearInterval(timer);
   }, []);
