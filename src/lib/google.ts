@@ -1,13 +1,39 @@
+import { invoke } from "@tauri-apps/api/core";
 import type { ListCoursesResponse, ListCourseWorkResponse } from "../types/classroom";
 import type { ListSpacesResponse, ListMessagesResponse } from "../types/chat";
+import type { LoginResponse } from "../types/auth";
 
 class GoogleAPIClient {
-  private readonly accessToken: string;
+  private accessToken: string;
   private readonly apiBaseUrl: string;
 
   constructor(accessToken: string, apiBaseUrl?: string) {
     this.accessToken = accessToken;
     this.apiBaseUrl = apiBaseUrl ?? "https://www.googleapis.com";
+  }
+
+  private async ensureValidToken(): Promise<string> {
+    const expiresAt = localStorage.getItem("expires_at");
+    if (expiresAt && Date.now() < Number(expiresAt) - 60_000) {
+      return this.accessToken;
+    }
+
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) return this.accessToken;
+
+    try {
+      const res = await invoke<LoginResponse>("refresh_token", { refreshToken });
+      localStorage.setItem("access_token", res.access_token);
+      localStorage.setItem("expires_at", String(Date.now() + res.expires_in * 1000));
+      this.accessToken = res.access_token;
+    } catch (e) {
+      console.error("Token refresh failed:", e);
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("expires_at");
+      window.location.reload();
+    }
+    return this.accessToken;
   }
 
   private isAbsoluteUrl(url: string): boolean {
@@ -17,11 +43,12 @@ class GoogleAPIClient {
   async fetch(endpoint: string, options: RequestInit = {
     method: "GET",
   }): Promise<Response> {
+    const token = await this.ensureValidToken();
     const url = this.isAbsoluteUrl(endpoint) 
     ? endpoint 
     : `${this.apiBaseUrl}${endpoint}`;
     const headers = {
-      "Authorization": `Bearer ${this.accessToken}`,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
       ...options.headers,
     };
