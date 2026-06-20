@@ -1,14 +1,6 @@
+import { type Member, members } from "../../constants/member";
 import { useState } from "react";
 import { CircularProgress } from "@mui/material";
-
-type Member = {
-  name: string;
-  href: string;
-}
-const members: Array<Member> = [
-  { name: "tanahiro2010", href: "https://tanahiro2010.com" },
-  { name: "田中博悠", href: "https://tanahiro2010.com" },
-];
 
 type LoadingProps = {
   isFullscreen?: boolean;
