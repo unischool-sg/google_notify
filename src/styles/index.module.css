@@ -135,3 +135,27 @@
 .dueLabel {
   color: #d93025;
 }
+
+.welcome {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.footer a {
+  color: #888;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #1967d2;
+}
