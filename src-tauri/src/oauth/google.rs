@@ -49,9 +49,12 @@ pub(crate) async fn login() -> Result<LoginResponse, String> {
         "openid",
         "email",
         "profile",
-        "https://www.googleapis.com/auth/classroom.courses",
-        "https://www.googleapis.com/auth/classroom.coursework.students",
-        "https://www.googleapis.com/auth/chat.messages",
+        "https://www.googleapis.com/auth/classroom.courses.readonly",
+        "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
+        "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
+        "https://www.googleapis.com/auth/classroom.announcements.readonly",
+        "https://www.googleapis.com/auth/chat.spaces.readonly",
+        "https://www.googleapis.com/auth/chat.messages.readonly",
     ];
 
     let state: String = rand::rng()
@@ -105,7 +108,8 @@ pub(crate) async fn login() -> Result<LoginResponse, String> {
         .map_err(|_| {
             "OAuth timeout: no callback received within 3 minutes.\n\
              Make sure the redirect URI is registered in Google Cloud Console:\n  \
-             http://127.0.0.1:54321/callback".to_string()
+             http://127.0.0.1:54321/callback"
+                .to_string()
         })?
         .ok_or("OAuth channel closed unexpectedly".to_string())?;
 
