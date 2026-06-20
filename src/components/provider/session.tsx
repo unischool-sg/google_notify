@@ -28,10 +28,10 @@ const SessionProvider = () => {
     return storedToken;
   });
 
-  const { isLoading: isProfileLoading, profile } = useProfile(token ?? "");
+  const { isLoading: isProfileLoading, profile, error } = useProfile(token ?? "");
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !error) {
       sessionStorage.setItem("profile", JSON.stringify(profile));
     } else {
       sessionStorage.removeItem("profile");
@@ -54,7 +54,7 @@ const SessionProvider = () => {
   };
 
   if (isLoading || isProfileLoading) return <Loading />;
-  if (!isLoggedIn) return (
+  if (!isLoggedIn || error) return (
     <Modal
       isOpen={!isLoggedIn}
       style={{ minWidth: 0, maxWidth: 400, width: "90vw" }}
