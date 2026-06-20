@@ -2,10 +2,14 @@
   padding: 1.5rem;
   max-width: 960px;
   margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .header {
-  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .header h1 {
@@ -27,13 +31,26 @@
 }
 
 .sideBySide {
+  margin-top: 1.5rem;
   display: flex;
   gap: 2rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sideBySide > .section {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .section {
@@ -172,7 +189,7 @@
 }
 
 .footer {
-  margin-top: 3rem;
+  flex-shrink: 0;
   padding-top: 1rem;
   border-top: 1px solid #e0e0e0;
   text-align: center;
