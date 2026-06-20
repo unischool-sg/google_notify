@@ -66,8 +66,9 @@ class GoogleAPIClient {
     url.searchParams.append("pageSize", "50");
     
     const res = await this.fetch(url.toString());
-    const data: ListCoursesResponse = await res.json();
+    if (!res.ok) throw new Error(`Failed to fetch courses: ${res.status} ${res.statusText}`);
 
+    const data: ListCoursesResponse = await res.json();
     return data.courses ?? [];
   }
 
@@ -77,8 +78,9 @@ class GoogleAPIClient {
     url.searchParams.append("pageSize", "20");
 
     const res = await this.fetch(url.toString());
-    const data: ListCourseWorkResponse = await res.json();
+    if (!res.ok) throw new Error(`Failed to fetch course works: ${res.status} ${res.statusText}`);
 
+    const data: ListCourseWorkResponse = await res.json();
     return data.courseWork ?? [];
   }
 
@@ -88,8 +90,9 @@ class GoogleAPIClient {
     url.searchParams.append("pageSize", "50");
 
     const res = await this.fetch(url.toString());
-    const data: ListSpacesResponse = await res.json();
+    if (!res.ok) throw new Error(`Failed to fetch chat spaces: ${res.status} ${res.statusText}`);
 
+    const data: ListSpacesResponse = await res.json();
     return data.spaces ?? [];
   }
 
@@ -100,8 +103,9 @@ class GoogleAPIClient {
     url.searchParams.append("pageSize", "20");
     
     const res = await this.fetch(url.toString());
-    const data: ListMessagesResponse = await res.json();
+    if (!res.ok) throw new Error(`Failed to fetch chat messages: ${res.status} ${res.statusText}`);
 
+    const data: ListMessagesResponse = await res.json();
     return data.messages ?? [];
   }
 }
