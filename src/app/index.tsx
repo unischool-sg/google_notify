@@ -33,6 +33,19 @@ const IndexPage = () => {
   }, [classroomResult.classroomWorks, classroomResult.loading, since]);
 
   if (classroomResult.loading) return <Loading isFullscreen={false} />;
+  if (classroomResult.error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}><h1>Classroom</h1></div>
+        <section className={styles.section}>
+          <div className={styles.error}>
+            <p>Classroomの取得に失敗しました</p>
+            <p className={styles.errorDetail}>{classroomResult.error.message}</p>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   const profileRaw = sessionStorage.getItem("profile");
   const profile = profileRaw ? JSON.parse(profileRaw) as Record<string, unknown> : null;
