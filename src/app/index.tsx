@@ -15,7 +15,7 @@ const developers = [
 
 const IndexPage = () => {
   const classroomResult = useClassroom();
-  const latestView = localStorage.getItem("latest_view");
+  const latestView = TEST_MODE ? null : localStorage.getItem("latest_view");
   const since = latestView && !isNaN(new Date(latestView).getTime())
     ? latestView
     : new Date(0).toISOString();
