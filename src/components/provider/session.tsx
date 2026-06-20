@@ -21,18 +21,12 @@ const SessionProvider = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
+  const [token, setToken] = useState<string | null>(() => {
     const storedToken = localStorage.getItem("access_token");
-    if (storedToken) {
-      setToken(storedToken);
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    setIsLoggedIn(storedToken ? true : false);
     setIsLoading(false);
-  }, []);
+    return storedToken;
+  });
 
   const { isLoading: isProfileLoading, profile } = useProfile(token ?? "");
 
