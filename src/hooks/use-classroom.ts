@@ -5,18 +5,17 @@ import { GoogleAPIClient } from '../lib/google';
 
 const useClassroom = (token: string | null) => {
   const [classroomWorks, setClassroomWorks] = useState<Array<ClassroomCourseWork>>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(() => !token);
+  const [error, setError] = useState<Error | null>(
+    () => token ? null : new Error("アクセストークンが見つかりません")
+  );
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      setError(new Error("アクセストークンが見つかりません"));
-      return;
-    }
-
     const fetchClassroomWorks = async () => {
+      if (!token) return;
+
       const client = new GoogleAPIClient(token);
+      
       try {
         const courses = await client.fetchCourses();
         const works = await Promise.all(courses.map(async (course) => {
