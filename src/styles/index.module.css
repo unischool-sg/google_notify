@@ -1,0 +1,137 @@
+.container {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  background: #e8f0fe;
+  color: #1967d2;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.card:hover {
+  border-color: #1967d2;
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 0 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardMeta {
+  font-size: 0.78rem;
+  color: #888;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cardLink {
+  flex-shrink: 0;
+  color: #888;
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.cardLink:hover {
+  color: #1967d2;
+  border-color: #1967d2;
+}
+
+.empty {
+  color: #aaa;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
+.chatCard {
+  composes: card;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.spaceName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.messageItem {
+  padding-left: 0.5rem;
+  border-left: 2px solid #e0e0e0;
+}
+
+.messageSender {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.messageText {
+  font-size: 0.88rem;
+  margin: 0.1rem 0;
+  color: #444;
+}
+
+.messageTime {
+  font-size: 0.72rem;
+  color: #aaa;
+}
+
+.dueLabel {
+  color: #d93025;
+}
