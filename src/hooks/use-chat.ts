@@ -1,9 +1,9 @@
-import type { ChatSpace } from "../types/chat";
+import type { ChatSpace, ChatMessage } from "../types/chat";
 import { useState, useEffect } from 'react';
 import { GoogleAPIClient } from '../lib/google';
 
 const useChat = (filter: string) => {
-  const [chatMessages, setChatMessages] = useState<ChatSpace[]>([]);
+  const [chatMessages, setChatMessages] = useState<Array<ChatSpace & { messages: ChatMessage[] }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
