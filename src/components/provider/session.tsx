@@ -4,46 +4,46 @@ import { SiGoogle } from "react-icons/si";
 import { useProfile } from "../../hooks/use-profile";
 import { Loading } from "../screen/loading";
 import { Modal } from "../ui/modal";
+import type { LoginResponse } from "../../types/auth";
 import styles from "../../styles/session.module.css";
+
+const storeTokenData = (res: LoginResponse) => {
+  localStorage.setItem("access_token", res.access_token);
+  if (res.refresh_token) {
+    localStorage.setItem("refresh_token", res.refresh_token);
+  } else {
+    localStorage.removeItem("refresh_token");
+  }
+  localStorage.setItem("expires_at", String(Date.now() + res.expires_in * 1000));
+};
 
 const SessionProvider = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [token, setToken] = useState<string | null>(() => {
+    const storedToken = localStorage.getItem("access_token");
+    setIsLoggedIn(storedToken ? true : false);
+    setIsLoading(false);
+    return storedToken;
+  });
+
+  const { isLoading: isProfileLoading, profile, error } = useProfile(token ?? "");
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setIsLoggedIn(false);
-      setIsLoading(false);
-      return;
+    if (profile && !error) {
+      sessionStorage.setItem("profile", JSON.stringify(profile));
+    } else {
+      sessionStorage.removeItem("profile");
     }
-
-    useProfile(token)
-      .then((profile) => {
-        sessionStorage.setItem("profile", JSON.stringify(profile));
-        setIsLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setIsLoggedIn(false);
-        setIsLoading(false);
-      });
-  }, []);
+  }, [profile, error]);
 
   const handleButtonClick = async () => {
     setIsLoggingIn(true);
     try {
-      const token = await invoke<string>("login");
-      localStorage.setItem("access_token", token);
-      try {
-        const profile = await useProfile(token);
-        sessionStorage.setItem("profile", JSON.stringify(profile));
-      } catch (e) {
-        console.error(e);
-        alert(`読み込み中にエラーが発生しました。再試行します\n${(e as Error).message}`);
-        window.location.reload();
-      }
+      const res = await invoke<LoginResponse>("login");
+      storeTokenData(res);
+      setToken(res.access_token);
       setIsLoggedIn(true);
     } catch (e) {
       console.error("Login failed:", e);
@@ -53,8 +53,8 @@ const SessionProvider = () => {
     }
   };
 
-  if (isLoading) return <Loading />;
-  if (!isLoading && !isLoggedIn) return (
+  if (isLoading || isProfileLoading) return <Loading />;
+  if (!isLoggedIn || error) return (
     <Modal
       isOpen={!isLoggedIn}
       style={{ minWidth: 0, maxWidth: 400, width: "90vw" }}

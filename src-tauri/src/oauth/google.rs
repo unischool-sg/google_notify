@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose, Engine as _};
 use rand::{distr::Alphanumeric, Rng};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -8,12 +8,19 @@ use url::Url;
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
-pub(crate) struct TokenResponse {
-    pub(crate) access_token: String,
+struct TokenResponse {
+    access_token: String,
     token_type: String,
     expires_in: u32,
     refresh_token: Option<String>,
     scope: String,
+}
+
+#[derive(Serialize)]
+pub(crate) struct LoginResponse {
+    pub(crate) access_token: String,
+    pub(crate) refresh_token: Option<String>,
+    pub(crate) expires_in: u32,
 }
 
 fn generate_code_verifier() -> String {
@@ -34,10 +41,21 @@ impl Drop for OauthServerGuard {
     }
 }
 
-pub(crate) async fn login() -> Result<String, String> {
+pub(crate) async fn login() -> Result<LoginResponse, String> {
     let client_id =
         std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
     let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+    let scopes = vec![
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/classroom.courses.readonly",
+        "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
+        "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
+        "https://www.googleapis.com/auth/classroom.announcements.readonly",
+        "https://www.googleapis.com/auth/chat.spaces.readonly",
+        "https://www.googleapis.com/auth/chat.messages.readonly",
+    ];
 
     let state: String = rand::rng()
         .sample_iter(&Alphanumeric)
@@ -63,12 +81,13 @@ pub(crate) async fn login() -> Result<String, String> {
     let _guard = OauthServerGuard(port);
 
     let redirect_uri = format!("http://127.0.0.1:{port}/callback");
+    let scopes_str = scopes.join("%20");
     let auth_url = format!(
         "https://accounts.google.com/o/oauth2/v2/auth?\
          client_id={client_id}&\
          redirect_uri={redirect_uri}&\
          response_type=code&\
-         scope=openid%20email%20profile&\
+         scope={scopes_str}&\
          state={state}&\
          code_challenge={code_challenge}&\
          code_challenge_method=S256&\
@@ -89,7 +108,8 @@ pub(crate) async fn login() -> Result<String, String> {
         .map_err(|_| {
             "OAuth timeout: no callback received within 3 minutes.\n\
              Make sure the redirect URI is registered in Google Cloud Console:\n  \
-             http://127.0.0.1:54321/callback".to_string()
+             http://127.0.0.1:54321/callback"
+                .to_string()
         })?
         .ok_or("OAuth channel closed unexpectedly".to_string())?;
 
@@ -156,5 +176,53 @@ pub(crate) async fn login() -> Result<String, String> {
 
     println!("[oauth] Login successful");
 
-    Ok(token_data.access_token)
+    Ok(LoginResponse {
+        access_token: token_data.access_token,
+        refresh_token: token_data.refresh_token,
+        expires_in: token_data.expires_in,
+    })
+}
+
+pub(crate) async fn refresh_access_token(refresh_token: &str) -> Result<LoginResponse, String> {
+    let client_id =
+        std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
+    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+
+    let http = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("Failed to build HTTP client: {e}"))?;
+
+    let mut params = vec![
+        ("refresh_token", refresh_token),
+        ("client_id", &client_id),
+        ("grant_type", "refresh_token"),
+    ];
+
+    if let Some(secret) = &client_secret {
+        params.push(("client_secret", secret));
+    }
+
+    let resp = http
+        .post("https://oauth2.googleapis.com/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Token refresh request failed: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.unwrap_or_default();
+
+    if !status.is_success() {
+        return Err(format!("Token refresh failed (HTTP {status}): {text}"));
+    }
+
+    let token_data: TokenResponse = serde_json::from_str(&text)
+        .map_err(|e| format!("Failed to parse token refresh response: {e}\nBody: {text}"))?;
+
+    Ok(LoginResponse {
+        access_token: token_data.access_token,
+        refresh_token: Some(refresh_token.to_string()),
+        expires_in: token_data.expires_in,
+    })
 }
