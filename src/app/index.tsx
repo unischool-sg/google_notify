@@ -14,7 +14,8 @@ const developers = [
 ];
 
 const IndexPage = () => {
-  const classroomResult = useClassroom();
+  const token = useMemo(() => localStorage.getItem("access_token"), [localStorage]);
+  const classroomResult = useClassroom(token);
   const latestView = TEST_MODE ? null : localStorage.getItem("latest_view");
   const since = latestView && !isNaN(new Date(latestView).getTime())
     ? latestView

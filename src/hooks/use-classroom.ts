@@ -3,13 +3,12 @@ import { useState, useEffect } from 'react';
 import { GoogleAPIClient } from '../lib/google';
 
 
-const useClassroom = () => {
+const useClassroom = (token: string | null) => {
   const [classroomWorks, setClassroomWorks] = useState<Array<ClassroomCourseWork>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
     if (!token) {
       setLoading(false);
       setError(new Error("アクセストークンが見つかりません"));
@@ -33,7 +32,7 @@ const useClassroom = () => {
     }
 
     fetchClassroomWorks();
-  }, []);
+  }, [token]);
 
   return { classroomWorks, loading, error } as const;
 }
