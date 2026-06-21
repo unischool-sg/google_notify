@@ -6,9 +6,11 @@ const UtilsProvider = () => {
     let unlisten: (() => void) | undefined;
     let disposed = false;
 
-    getCurrentWindow().onCloseRequested(() => {
+    getCurrentWindow().onCloseRequested(async (event) => {
+      event.preventDefault();
       if (sessionStorage.getItem("profile"))
         localStorage.setItem("latest_view", new Date().toISOString());
+      await getCurrentWindow().destroy();
     }).then((fn) => {
       if (disposed) {
         fn();
