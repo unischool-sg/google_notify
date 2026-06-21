@@ -1,13 +1,11 @@
+use std::path::Path;
+
 fn main() {
-    dotenvy::from_filename("../.env").ok();
-    if let Ok(client_id) = std::env::var("GOOGLE_CLIENT_ID") {
-        println!("cargo:rustc-env=GOOGLE_CLIENT_ID={client_id}");
-    }
-
-    if let Ok(client_secret) = std::env::var("GOOGLE_CLIENT_SECRET") {
-        println!("cargo:rustc-env=GOOGLE_CLIENT_SECRET={client_secret}");
-    }
-
-    println!("cargo:rerun-if-changed=../.env");
+    let config = dotenv_build::Config {
+        filename: Path::new("../.env"),
+        fail_if_missing_dotenv: true,
+        ..Default::default()
+    };
+    dotenv_build::output(config).unwrap();
     tauri_build::build();
 }
