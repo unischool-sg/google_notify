@@ -57,6 +57,11 @@ jobs:
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
 
+      - name: Sync app version from tag
+        run: bun run scripts/sync-release-version.mjs
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+
       # Tauri公式のビルド・リリースActionを実行
       - name: Build and Release Tauri App
         uses: tauri-apps/tauri-action@fce9c6108b31ea247710505d3aaaa893ee6768d4 # v0
