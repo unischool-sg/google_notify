@@ -44,14 +44,12 @@ jobs:
           workspaces: './src-tauri -> target'
 
       # フロントエンドの依存関係インストール
-      - name: Install bun
-        run: curl -fsSL https://bun.sh/install | bash
-    
-      - name: Add bun to PATH
-        run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
+      - uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2
+        with:
+          bun-version: latest
 
       - name: Install frontend dependencies
-        run: bun install # pnpm yarn bun 等を使用している場合は書き換えてください
+        run: bun install
 
       # .env を GitHub Secrets から生成（cargo build 時に env!() マクロで埋め込まれる）
       - name: Create .env file from secrets
