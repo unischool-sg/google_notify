@@ -11,13 +11,13 @@ const TARGETS: &[&str] = &[
 ];
 
 const UPDATER_ENDPOINT: &str =
-    "https://github.com/unischool-sg/google_notify/releases/latest/download/update.json";
+    "https://github.com/unischool-sg/google_notify/releases/latest/download/latest.json";
 
 #[tokio::test]
 async fn updater_endpoint_reachable() {
     if std::env::var_os("RUN_UPDATER_ENDPOINT_TEST").is_none() {
         eprintln!(
-            "[updater_test] SKIP — set RUN_UPDATER_ENDPOINT_TEST=1 to check the published update.json"
+            "[updater_test] SKIP — set RUN_UPDATER_ENDPOINT_TEST=1 to check the published latest.json"
         );
         return;
     }
@@ -40,7 +40,7 @@ async fn updater_endpoint_reachable() {
     eprintln!("[updater_test]   HTTP {status}");
     assert!(
         status.is_success(),
-        "update.json must be published to the latest GitHub release"
+        "latest.json must be published to the latest GitHub release"
     );
 
     let body = resp.text().await.expect("Failed to read response body");
