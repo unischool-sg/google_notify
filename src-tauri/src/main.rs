@@ -4,12 +4,21 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use auto_launch::AutoLaunch;
 fn setup_autostart() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "macos")]
     let app = AutoLaunch::new(
         "Google Notify",
         std::env::current_exe()?
             .to_str()
             .unwrap(),
         false,
+        &[] as &[&str],
+    );
+    #[cfg(not(target_os = "macos"))]
+    let app = AutoLaunch::new(
+        "Google Notify",
+        std::env::current_exe()?
+            .to_str()
+            .unwrap(),
         &[] as &[&str],
     );
 
