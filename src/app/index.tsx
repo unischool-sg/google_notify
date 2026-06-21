@@ -15,7 +15,7 @@ import { useClassroom } from "../hooks/use-classroom";
 import { Loading } from "../components/screen/loading";
 import { ClassroomCard } from "../components/unread/classroom-card";
 
-const TEST_MODE = true; // false にすると期間フィルタが有効に
+const TEST_MODE = false; // テスト時のみ true を注入する
 const INITIAL_DISPLAY_COUNT = 7;
 const LOAD_MORE_COUNT = 10;
 
