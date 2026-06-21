@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 class MockStorage implements Storage {
   private store = new Map<string, string>();
@@ -15,3 +16,12 @@ class MockStorage implements Storage {
 
 Object.defineProperty(globalThis, "localStorage", { value: new MockStorage(), writable: true });
 Object.defineProperty(globalThis, "sessionStorage", { value: new MockStorage(), writable: true });
+
+vi.stubGlobal(
+  "fetch",
+  vi.fn().mockRejectedValue(
+    new Error(
+      "fetch is not mocked. Use vi.stubGlobal('fetch', mockFn) in your test to set up a mock.",
+    ),
+  ),
+);
