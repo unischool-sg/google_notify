@@ -21,6 +21,14 @@
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://classroom.googleapis.com https://www.googleapis.com https://chat.googleapis.com"
     }
   },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://raw.githubusercontent.com/unischool-sg/google_notify/refs/heads/main/update.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE4MkZGOTk0NDEzMUQxNzIKUldSeTBURkJsUGt2R045Qi9QSzdQOXZ2K1kzWDFDZmpoWjhiZkdMQmFnanlpVkVBRHVNSFNrQkIK"
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",

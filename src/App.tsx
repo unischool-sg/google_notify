@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HasChildrenRoute, BaseRoute } from "./types/routes";
 import { routes } from "./config/routes";
@@ -21,6 +22,22 @@ const flattenRoutes = (route: HasChildrenRoute, parent = ""): Array<BaseRoute> =
 const flatRoutes: Array<BaseRoute> = routes.flatMap((route) => flattenRoutes(route, ""));
 
 function App() {
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const { check } = await import("@tauri-apps/plugin-updater");
+        const { relaunch } = await import("@tauri-apps/plugin-process");
+        const update = await check();
+        if (update?.available) {
+          await update.downloadAndInstall();
+          await relaunch();
+        }
+      } catch {
+        // オフラインや未設定時は何もしない
+      }
+    })();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

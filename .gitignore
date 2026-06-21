@@ -25,5 +25,9 @@ dist-ssr
 
 .env**
 
+# Updater signing keys (secret)
+tauri-updater-private.key
+tauri-updater-public.key
+
 **/package-lock.json
 **/bun.lock
