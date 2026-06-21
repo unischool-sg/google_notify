@@ -1,9 +1,10 @@
 [package]
-name = "google_notify"
+name = "Google_Notify"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Google Notify is a desktop application that provides notifications for Google services. It is built using Rust and Tauri, and it allows users to stay informed about important updates from their Google accounts."
+authors = ["tanahiro2010 <herentongkegu087@gmail.com>"]
 edition = "2021"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,7 +17,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
-dotenvy = "0.15"
+dotenv-build = "0.1.1"
 
 [dependencies]
 rand = "0.9"
