@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
 import { useClassroom } from "../hooks/use-classroom";
 import { Loading } from "../components/screen/loading";
 import { ClassroomCard } from "../components/unread/classroom-card";
@@ -24,6 +25,10 @@ const IndexPage = () => {
   const [developer] = useState(() =>
     developers[Math.floor(Math.random() * developers.length)]
   );
+  const [appVersion, setAppVersion] = useState("");
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => setAppVersion("0.1.0"));
+  }, []);
   const [classroomLimit, setClassroomLimit] = useState(INITIAL_DISPLAY_COUNT);
 
   const unreadItems = useMemo(() => {
@@ -90,7 +95,7 @@ const IndexPage = () => {
       </section>
 
       <footer className={styles.footer}>
-        Powered by <a href="https://unischool.jp">UniSchool</a> - <a href={developer.href}>{developer.name}</a>
+        v{appVersion} &middot; Powered by <a href="https://unischool.jp">UniSchool</a> - <a href={developer.href}>{developer.name}</a>
       </footer>
     </div>
   );
