@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { ThemeProvider } from "@mui/material";
 import { IndexPage } from "../../app/index";
+import { theme } from "../../theme";
 
 vi.mock("../../hooks/use-classroom", () => ({
   useClassroom: vi.fn(),
@@ -10,6 +12,15 @@ vi.mock("../../hooks/use-classroom", () => ({
 import { useClassroom } from "../../hooks/use-classroom";
 
 const mockUseClassroom = useClassroom as ReturnType<typeof vi.fn>;
+
+const renderIndexPage = () =>
+  render(
+    <ThemeProvider theme={theme}>
+      <MemoryRouter>
+        <IndexPage />
+      </MemoryRouter>
+    </ThemeProvider>,
+  );
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -23,11 +34,7 @@ describe("IndexPage", () => {
       error: null,
     });
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
@@ -39,11 +46,7 @@ describe("IndexPage", () => {
       error: new Error("Fetch failed"),
     });
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByText("Classroomの取得に失敗しました")).toBeInTheDocument();
   });
@@ -55,11 +58,7 @@ describe("IndexPage", () => {
       error: null,
     });
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByText("未読はありません")).toBeInTheDocument();
   });
@@ -92,11 +91,7 @@ describe("IndexPage", () => {
       error: null,
     });
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("Homework 1")).toBeInTheDocument();
@@ -111,11 +106,7 @@ describe("IndexPage", () => {
     });
     sessionStorage.setItem("profile", JSON.stringify({ name: "Taro" }));
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByText(/ようこそ/)).toBeInTheDocument();
   });
@@ -137,11 +128,7 @@ describe("IndexPage", () => {
       error: null,
     });
 
-    render(
-      <MemoryRouter>
-        <IndexPage />
-      </MemoryRouter>,
-    );
+    renderIndexPage();
 
     expect(screen.getByText("さらに表示")).toBeInTheDocument();
   });

@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { ThemeProvider } from "@mui/material";
 import { ChatSpaceSection } from "../../components/unread/chat-card";
 import type { ChatSpace, ChatMessage } from "../../types/chat";
+import { theme } from "../../theme";
 
 const baseSpace: ChatSpace = {
   name: "spaces/1",
@@ -23,20 +25,27 @@ const messages: ChatMessage[] = [
   },
 ];
 
+const renderChatSpaceSection = (space: ChatSpace & { messages: ChatMessage[] }) =>
+  render(
+    <ThemeProvider theme={theme}>
+      <ChatSpaceSection space={space} />
+    </ThemeProvider>,
+  );
+
 describe("ChatSpaceSection", () => {
   it("renders the space display name", () => {
-    render(<ChatSpaceSection space={{ ...baseSpace, messages }} />);
+    renderChatSpaceSection({ ...baseSpace, messages });
     expect(screen.getByText("General Chat")).toBeInTheDocument();
   });
 
   it("renders all messages", () => {
-    render(<ChatSpaceSection space={{ ...baseSpace, messages }} />);
+    renderChatSpaceSection({ ...baseSpace, messages });
     expect(screen.getByText("Hello everyone!")).toBeInTheDocument();
     expect(screen.getByText("Just a message")).toBeInTheDocument();
   });
 
   it("shows sender name when present", () => {
-    render(<ChatSpaceSection space={{ ...baseSpace, messages }} />);
+    renderChatSpaceSection({ ...baseSpace, messages });
     expect(screen.getByText("Alice")).toBeInTheDocument();
   });
 
@@ -44,7 +53,7 @@ describe("ChatSpaceSection", () => {
     const msgs: ChatMessage[] = [
       { name: "spaces/1/messages/m3", createTime: "2026-06-21T12:00:00Z" },
     ];
-    render(<ChatSpaceSection space={{ ...baseSpace, messages: msgs }} />);
+    renderChatSpaceSection({ ...baseSpace, messages: msgs });
     expect(screen.getByText("(画像など)")).toBeInTheDocument();
   });
 
@@ -53,7 +62,7 @@ describe("ChatSpaceSection", () => {
       name: "spaces/2",
       spaceType: "DIRECT_MESSAGE",
     };
-    render(<ChatSpaceSection space={{ ...noDisplay, messages }} />);
+    renderChatSpaceSection({ ...noDisplay, messages });
     expect(screen.getByText("spaces/2")).toBeInTheDocument();
   });
 });

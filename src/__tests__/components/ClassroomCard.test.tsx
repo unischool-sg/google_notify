@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { ThemeProvider } from "@mui/material";
 import { ClassroomCard } from "../../components/unread/classroom-card";
 import type { ClassroomCourseWork } from "../../types/classroom";
+import { theme } from "../../theme";
 
 const baseWork: ClassroomCourseWork = {
   courseId: "c1",
@@ -14,19 +16,26 @@ const baseWork: ClassroomCourseWork = {
   workType: "ASSIGNMENT",
 };
 
+const renderClassroomCard = (work: ClassroomCourseWork) =>
+  render(
+    <ThemeProvider theme={theme}>
+      <ClassroomCard work={work} />
+    </ThemeProvider>,
+  );
+
 describe("ClassroomCard", () => {
   it("renders the title", () => {
-    render(<ClassroomCard work={baseWork} />);
+    renderClassroomCard(baseWork);
     expect(screen.getByText("Test Assignment")).toBeInTheDocument();
   });
 
   it("renders the update time", () => {
-    render(<ClassroomCard work={baseWork} />);
+    renderClassroomCard(baseWork);
     expect(screen.getByText(/更新:/)).toBeInTheDocument();
   });
 
   it("renders a link to the assignment", () => {
-    render(<ClassroomCard work={baseWork} />);
+    renderClassroomCard(baseWork);
     const link = screen.getByText("開く");
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute("href", "https://classroom.google.com/c/test");
@@ -40,13 +49,13 @@ describe("ClassroomCard", () => {
       dueDate: { year: 2026, month: 7, day: 1 },
       dueTime: { hours: 23, minutes: 59 },
     };
-    render(<ClassroomCard work={work} />);
+    renderClassroomCard(work);
     expect(screen.getByText(/期限/)).toBeInTheDocument();
     expect(screen.getByText(/2026\/7\/1/)).toBeInTheDocument();
   });
 
   it("does not show due label when dueDate is absent", () => {
-    render(<ClassroomCard work={baseWork} />);
+    renderClassroomCard(baseWork);
     expect(screen.queryByText(/期限/)).not.toBeInTheDocument();
   });
 
@@ -55,7 +64,7 @@ describe("ClassroomCard", () => {
       ...baseWork,
       dueDate: { year: 2026, month: 12, day: 25 },
     };
-    render(<ClassroomCard work={work} />);
+    renderClassroomCard(work);
     expect(screen.getByText(/2026\/12\/25/)).toBeInTheDocument();
     expect(screen.queryByText(/00:00/)).not.toBeInTheDocument();
   });

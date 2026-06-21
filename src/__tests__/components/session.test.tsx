@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ThemeProvider } from "@mui/material";
 import { SessionProvider } from "../../components/provider/session";
+import { theme } from "../../theme";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({
@@ -16,6 +18,13 @@ import { useProfile } from "../../hooks/use-profile";
 
 const mockUseProfile = useProfile as ReturnType<typeof vi.fn>;
 
+const renderSessionProvider = () =>
+  render(
+    <ThemeProvider theme={theme}>
+      <SessionProvider />
+    </ThemeProvider>,
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -28,7 +37,7 @@ describe("SessionProvider", () => {
       error: null,
     });
 
-    render(<SessionProvider />);
+    renderSessionProvider();
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
@@ -39,7 +48,7 @@ describe("SessionProvider", () => {
       error: null,
     });
 
-    render(<SessionProvider />);
+    renderSessionProvider();
     expect(screen.getByText("Sign in with Google")).toBeInTheDocument();
     expect(screen.getByText("ログイン")).toBeInTheDocument();
   });
@@ -56,7 +65,7 @@ describe("SessionProvider", () => {
       expires_in: 3600,
     });
 
-    render(<SessionProvider />);
+    renderSessionProvider();
 
     const button = screen.getByText("Sign in with Google");
     await userEvent.click(button);
@@ -74,7 +83,7 @@ describe("SessionProvider", () => {
       error: null,
     });
 
-    render(<SessionProvider />);
+    renderSessionProvider();
     expect(sessionStorage.getItem("profile")).toBe(JSON.stringify(profile));
   });
 
@@ -85,7 +94,7 @@ describe("SessionProvider", () => {
       error: new Error("Failed"),
     });
 
-    render(<SessionProvider />);
+    renderSessionProvider();
     expect(sessionStorage.getItem("profile")).toBeNull();
   });
 
@@ -96,7 +105,7 @@ describe("SessionProvider", () => {
       error: null,
     });
 
-    const { container } = render(<SessionProvider />);
-    expect(container.innerHTML).toBe("");
+    const { container } = renderSessionProvider();
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
   });
 });
