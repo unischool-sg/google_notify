@@ -78,7 +78,7 @@ jobs:
           KEY_FILE=$(mktemp)
           echo "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" > "$KEY_FILE"
           find src-tauri/target/release/bundle \
-            -type f \( -name "*.msi*" -o -name "*.tar.gz" -o -name "*.dmg" -o -name "*.AppImage" \) \
+            -type f \( -name "*.msi" -o -name "*.msi.zip" -o -name "*.tar.gz" -o -name "*.dmg" -o -name "*.AppImage" \) \
             -exec echo "Signing: {}" \; \
             -exec bun run tauri signer sign \
               --private-key "$KEY_FILE" \
