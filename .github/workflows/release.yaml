@@ -17,8 +17,6 @@ jobs:
             args: ''
           - platform: 'macos-latest'   # Mac用ビルド環境（必要に応じて）
             args: ''
-          - platform: 'ubuntu-latest'   # Linux用ビルド環境
-            args: ''
 
     runs-on: ${{ matrix.platform }}
     steps:
