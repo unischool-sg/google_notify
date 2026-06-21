@@ -18,15 +18,10 @@ const storeTokenData = (res: LoginResponse) => {
 };
 
 const SessionProvider = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const storedToken = localStorage.getItem("access_token");
+  const [token, setToken] = useState<string | null>(storedToken);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!storedToken);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const [token, setToken] = useState<string | null>(() => {
-    const storedToken = localStorage.getItem("access_token");
-    setIsLoggedIn(storedToken ? true : false);
-    setIsLoading(false);
-    return storedToken;
-  });
 
   const { isLoading: isProfileLoading, profile, error } = useProfile(token ?? "");
 
@@ -53,7 +48,7 @@ const SessionProvider = () => {
     }
   };
 
-  if (isLoading || isProfileLoading) return <Loading />;
+  if (isProfileLoading) return <Loading />;
   if (!isLoggedIn || error) return (
     <Modal
       isOpen={!isLoggedIn}
