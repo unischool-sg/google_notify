@@ -26,7 +26,7 @@
       "endpoints": [
         "https://github.com/unischool-sg/google_notify/releases/download/v{{current_version}}/update-{{target}}.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE4MkZGOTk0NDEzMUQxNzIKUldSeTBURkJsUGt2R045Qi9QSzdQOXZ2K1kzWDFDZmpoWjhiZkdMQmFnanlpVkVBRHVNSFNrQkIK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE0MTZBRjkxOTBFRTU3NjUKUldSbFYrNlFrYThXRklMRjZzN05sMXFOU1VlMnBPNkp3WG5hSTg3ZkpIYTJRQ1ZSTWlqeUFmTXcK"
     }
   },
   "bundle": {
