@@ -1,5 +1,5 @@
 [package]
-name = "Google_Notify"
+name = "google-notify"
 version = "0.1.0"
 description = "Google Notify is a desktop application that provides notifications for Google services. It is built using Rust and Tauri, and it allows users to stay informed about important updates from their Google accounts."
 authors = ["tanahiro2010 <herentongkegu087@gmail.com>"]
