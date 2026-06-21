@@ -78,14 +78,12 @@ jobs:
           KEY_FILE=$(mktemp)
           echo "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" > "$KEY_FILE"
           find src-tauri/target/release/bundle \
-            -type f \( -name "*.msi.zip" -o -name "*.tar.gz" -o -name "*.dmg" \) \
-            | while read -r bundle; do
-            echo "Signing: $bundle"
-            bun run tauri signer sign \
+            -type f \( -name "*.msi*" -o -name "*.tar.gz" -o -name "*.dmg" -o -name "*.AppImage" \) \
+            -exec echo "Signing: {}" \; \
+            -exec bun run tauri signer sign \
               --private-key "$KEY_FILE" \
               --password "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" \
-              "$bundle"
-          done
+              {} \;
           rm -f "$KEY_FILE"
 
       # update.json を生成してリリースにアップロード
