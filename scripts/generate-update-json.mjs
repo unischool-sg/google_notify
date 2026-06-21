@@ -86,7 +86,17 @@ function mergePartialManifests() {
       console.error(`Manifest part has no platforms object: ${partFile}`);
       process.exit(1);
     }
-    Object.assign(platforms, part.platforms);
+
+    for (const [platformName, platform] of Object.entries(part.platforms)) {
+      if (platforms[platformName] && !samePlatform(platforms[platformName], platform)) {
+        console.error(`Conflicting duplicate platform '${platformName}' in ${partFile}`);
+        console.error(`Existing URL: ${platforms[platformName].url}`);
+        console.error(`Duplicate URL: ${platform.url}`);
+        process.exit(1);
+      }
+
+      platforms[platformName] = platform;
+    }
   }
 
   validatePlatforms(platforms);
@@ -151,7 +161,7 @@ function findJsonFiles(root) {
   };
 
   walk(root);
-  return jsonFiles;
+  return jsonFiles.sort();
 }
 
 function toUpdateArtifact(sigPath) {
@@ -205,6 +215,10 @@ function artifactRank(artifactName = "") {
   if (/\.appimage$/i.test(artifactName)) return 20;
   if (/\.(msi|nsis)\.zip$/i.test(artifactName)) return 10;
   return 0;
+}
+
+function samePlatform(a, b) {
+  return a.url === b.url && a.signature === b.signature;
 }
 
 function validatePlatforms(platforms) {
