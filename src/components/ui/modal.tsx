@@ -1,5 +1,5 @@
-import { CSSProperties, useCallback, useEffect } from "react";
-import styles from "../../styles/modal.module.css";
+import { CSSProperties } from "react";
+import { Dialog, DialogContent } from "@mui/material";
 
 type ModalProps = {
   isOpen: boolean;
@@ -7,33 +7,19 @@ type ModalProps = {
   children: React.ReactNode;
   className?: string;
   style?: CSSProperties;
-}
-export const Modal = ({ isOpen, onClose, className, children, style }: ModalProps) => {
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [isOpen, handleKeyDown]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className={styles.overlay} onClick={() => onClose?.()}>
-      <div
-        className={`${styles.content} ${className ?? ""}`}
-        style={style}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
-      </div>
-    </div>
-  );
 };
+
+export const Modal = ({ isOpen, onClose, className, children, style }: ModalProps) => (
+  <Dialog
+    open={isOpen}
+    onClose={onClose}
+    slotProps={{
+      paper: {
+        className,
+        style,
+      },
+    }}
+  >
+    <DialogContent>{children}</DialogContent>
+  </Dialog>
+);
