@@ -88,12 +88,13 @@ for (const sigPath of sigFiles) {
   console.log(`Generated ${filename}`);
 }
 
+// Tauri 2 updater: {{target}} = OS (darwin/windows/linux), {{arch}} = architecture
 function determineTarget(artifactName) {
   if (/windows/i.test(artifactName) || /msi/i.test(artifactName)) {
-    return "x86_64-pc-windows-msvc";
+    return "windows-x86_64";
   }
   if (/aarch64|arm64/i.test(artifactName)) {
-    return "aarch64-apple-darwin";
+    return "darwin-aarch64";
   }
-  return "x86_64-apple-darwin";
+  return "darwin-x86_64";
 }
