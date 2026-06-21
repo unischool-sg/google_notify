@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useProfile } from "../hooks/use-profile";
+import { useProfile } from "../../hooks/use-profile";
 
 const mockMethods = vi.hoisted(() => ({
   fetch: vi.fn(),
 }));
 
-vi.mock("../lib/google", () => ({
+vi.mock("../../lib/google", () => ({
   GoogleAPIClient: class {
     fetch = mockMethods.fetch;
   },

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Loading } from "../components/screen/loading";
+import { Loading } from "../../components/screen/loading";
 
 describe("Loading", () => {
   it("renders a loading indicator", () => {

@@ -13,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  test-typescript:
-    name: TypeScript (Vitest)
+  ts-test:
+    name: Vitest test
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -24,14 +24,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
-          cache: "npm"
 
-      - run: npm install
+      - run: curl -fsSL https://bun.sh/install | bash
 
-      - run: npm run test:ts
+      - run: echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
-  test-rust:
-    name: Rust (cargo test)
+      - run: bun install
+
+      - run: bun run test:ts
+
+  rs-test:
+    name: cargo test
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -39,6 +42,11 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: dtolnay/rust-toolchain@stable
+
+      - name: Create .env for build
+        run: |
+          echo "GOOGLE_CLIENT_ID=ci-placeholder" >> .env
+          echo "GOOGLE_CLIENT_SECRET=ci-placeholder" >> .env
 
       - name: Install system dependencies
         run: |

@@ -6,7 +6,7 @@ use std::time::Duration;
 use tokio::sync::mpsc;
 use url::Url;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[allow(dead_code)]
 struct TokenResponse {
     access_token: String,
@@ -41,10 +41,56 @@ impl Drop for OauthServerGuard {
     }
 }
 
+async fn exchange_token(
+    http: &reqwest::Client,
+    token_url: &str,
+    params: Vec<(&str, &str)>,
+) -> Result<TokenResponse, String> {
+    let resp = http
+        .post(token_url)
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Token exchange request failed: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.unwrap_or_default();
+
+    if !status.is_success() {
+        return Err(format!("Token exchange failed (HTTP {status}): {text}"));
+    }
+
+    serde_json::from_str(&text)
+        .map_err(|e| format!("Failed to parse token response: {e}\nBody: {text}"))
+}
+
+async fn exchange_code(
+    http: &reqwest::Client,
+    token_url: &str,
+    code: &str,
+    client_id: &str,
+    code_verifier: &str,
+    redirect_uri: &str,
+    client_secret: Option<&str>,
+) -> Result<TokenResponse, String> {
+    let mut params = vec![
+        ("code", code),
+        ("client_id", client_id),
+        ("code_verifier", code_verifier),
+        ("redirect_uri", redirect_uri),
+        ("grant_type", "authorization_code"),
+    ];
+
+    if let Some(secret) = client_secret {
+        params.push(("client_secret", secret));
+    }
+
+    exchange_token(http, token_url, params).await
+}
+
 pub(crate) async fn login() -> Result<LoginResponse, String> {
-    let client_id =
-        std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
-    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+    let client_id = env!("GOOGLE_CLIENT_ID");
+    let client_secret = option_env!("GOOGLE_CLIENT_SECRET").map(|s| s.to_string());
     let scopes = vec![
         "openid",
         "email",
@@ -145,34 +191,16 @@ pub(crate) async fn login() -> Result<LoginResponse, String> {
         .build()
         .map_err(|e| format!("Failed to build HTTP client: {e}"))?;
 
-    let mut params = vec![
-        ("code", code.as_str()),
-        ("client_id", client_id.as_str()),
-        ("code_verifier", code_verifier.as_str()),
-        ("redirect_uri", redirect_uri.as_str()),
-        ("grant_type", "authorization_code"),
-    ];
-
-    if let Some(secret) = &client_secret {
-        params.push(("client_secret", secret.as_str()));
-    }
-
-    let resp = http
-        .post("https://oauth2.googleapis.com/token")
-        .form(&params)
-        .send()
-        .await
-        .map_err(|e| format!("Token exchange request failed: {e}"))?;
-
-    let status = resp.status();
-    let text = resp.text().await.unwrap_or_default();
-
-    if !status.is_success() {
-        return Err(format!("Token exchange failed (HTTP {status}): {text}"));
-    }
-
-    let token_data: TokenResponse = serde_json::from_str(&text)
-        .map_err(|e| format!("Failed to parse token response: {e}\nBody: {text}"))?;
+    let token_data = exchange_code(
+        &http,
+        "https://oauth2.googleapis.com/token",
+        &code,
+        client_id,
+        &code_verifier,
+        &redirect_uri,
+        client_secret.as_deref(),
+    )
+    .await?;
 
     println!("[oauth] Login successful");
 
@@ -186,7 +214,6 @@ pub(crate) async fn login() -> Result<LoginResponse, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use base64::{engine::general_purpose, Engine as _};
 
     #[test]
     fn test_generate_code_verifier_length_and_encoding() {
@@ -399,12 +426,167 @@ mod tests {
         assert_eq!(login.refresh_token, Some(input_rt.to_string()));
         assert_eq!(login.expires_in, 3600);
     }
+
+    // --- HTTP mock tests (exchange_token / exchange_code) ---
+
+    #[tokio::test]
+    async fn test_exchange_code_success_with_refresh() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(200)
+            .with_body(
+                r#"{"access_token":"ya29.mock","token_type":"Bearer","expires_in":3600,"refresh_token":"rt1","scope":"email"}"#,
+            )
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = exchange_code(
+            &client,
+            &server.url(),
+            "auth_code_123",
+            "client_id_test",
+            "verifier_test",
+            "http://localhost/callback",
+            None,
+        )
+        .await;
+
+        assert!(result.is_ok());
+        let token = result.unwrap();
+        assert_eq!(token.access_token, "ya29.mock");
+        assert_eq!(token.refresh_token, Some("rt1".into()));
+        assert_eq!(token.expires_in, 3600);
+    }
+
+    #[tokio::test]
+    async fn test_exchange_code_success_no_refresh() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(200)
+            .with_body(
+                r#"{"access_token":"ya29.mock2","token_type":"Bearer","expires_in":1800,"scope":"email"}"#,
+            )
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = exchange_code(
+            &client,
+            &server.url(),
+            "auth_code_456",
+            "client_id_test",
+            "verifier_test",
+            "http://localhost/callback",
+            None,
+        )
+        .await;
+
+        assert!(result.is_ok());
+        let token = result.unwrap();
+        assert_eq!(token.access_token, "ya29.mock2");
+        assert!(token.refresh_token.is_none());
+        assert_eq!(token.expires_in, 1800);
+    }
+
+    #[tokio::test]
+    async fn test_exchange_code_http_error() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(400)
+            .with_body(r#"{"error":"invalid_grant"}"#)
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = exchange_code(
+            &client,
+            &server.url(),
+            "bad_code",
+            "client_id_test",
+            "verifier_test",
+            "http://localhost/callback",
+            None,
+        )
+        .await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.contains("400"), "error should contain HTTP status");
+    }
+
+    #[tokio::test]
+    async fn test_exchange_code_with_client_secret() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(200)
+            .with_body(
+                r#"{"access_token":"ya29.secret","token_type":"Bearer","expires_in":3600,"scope":"email"}"#,
+            )
+            .create();
+
+        let client = reqwest::Client::new();
+        let result = exchange_code(
+            &client,
+            &server.url(),
+            "code_with_secret",
+            "client_id_test",
+            "verifier_test",
+            "http://localhost/callback",
+            Some("my_secret"),
+        )
+        .await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_exchange_token_refresh_success() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(200)
+            .with_body(
+                r#"{"access_token":"ya29.refreshed","token_type":"Bearer","expires_in":3600,"scope":"email"}"#,
+            )
+            .create();
+
+        let params = vec![
+            ("refresh_token", "old_refresh_token"),
+            ("client_id", "client_id_test"),
+            ("grant_type", "refresh_token"),
+        ];
+
+        let client = reqwest::Client::new();
+        let result = exchange_token(&client, &server.url(), params).await;
+
+        assert!(result.is_ok());
+        let token = result.unwrap();
+        assert_eq!(token.access_token, "ya29.refreshed");
+    }
+
+    #[tokio::test]
+    async fn test_exchange_token_invalid_json() {
+        let mut server = mockito::Server::new_async().await;
+        let _m = server
+            .mock("POST", "/")
+            .with_status(200)
+            .with_body("not-json")
+            .create();
+
+        let params = vec![("grant_type", "refresh_token")];
+        let client = reqwest::Client::new();
+        let result = exchange_token(&client, &server.url(), params).await;
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("parse"));
+    }
 }
 
 pub(crate) async fn refresh_access_token(refresh_token: &str) -> Result<LoginResponse, String> {
-    let client_id =
-        std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
-    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+    let client_id = env!("GOOGLE_CLIENT_ID");
+    let client_secret = option_env!("GOOGLE_CLIENT_SECRET").map(|s| s.to_string());
 
     let http = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
@@ -413,7 +595,7 @@ pub(crate) async fn refresh_access_token(refresh_token: &str) -> Result<LoginRes
 
     let mut params = vec![
         ("refresh_token", refresh_token),
-        ("client_id", &client_id),
+        ("client_id", client_id),
         ("grant_type", "refresh_token"),
     ];
 
@@ -421,22 +603,7 @@ pub(crate) async fn refresh_access_token(refresh_token: &str) -> Result<LoginRes
         params.push(("client_secret", secret));
     }
 
-    let resp = http
-        .post("https://oauth2.googleapis.com/token")
-        .form(&params)
-        .send()
-        .await
-        .map_err(|e| format!("Token refresh request failed: {e}"))?;
-
-    let status = resp.status();
-    let text = resp.text().await.unwrap_or_default();
-
-    if !status.is_success() {
-        return Err(format!("Token refresh failed (HTTP {status}): {text}"));
-    }
-
-    let token_data: TokenResponse = serde_json::from_str(&text)
-        .map_err(|e| format!("Failed to parse token refresh response: {e}\nBody: {text}"))?;
+    let token_data = exchange_token(&http, "https://oauth2.googleapis.com/token", params).await?;
 
     Ok(LoginResponse {
         access_token: token_data.access_token,

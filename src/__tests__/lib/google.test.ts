@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }));
 
-import { GoogleAPIClient } from "../lib/google";
+import { GoogleAPIClient } from "../../lib/google";
 
 beforeEach(() => {
   localStorage.clear();

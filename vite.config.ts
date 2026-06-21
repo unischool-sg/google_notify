@@ -38,5 +38,10 @@ export default defineConfig(async () => ({
     setupFiles: ["./src/__tests__/setup.ts"],
     css: true,
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    server: {
+      deps: {
+        inline: ["react-transition-group"],
+      },
+    },
   },
 }));

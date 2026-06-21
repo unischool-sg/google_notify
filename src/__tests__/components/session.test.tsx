@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SessionProvider } from "../components/provider/session";
+import { SessionProvider } from "../../components/provider/session";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: mockInvoke,
 }));
 
-vi.mock("../hooks/use-profile", () => ({
+vi.mock("../../hooks/use-profile", () => ({
   useProfile: vi.fn(),
 }));
 
-import { useProfile } from "../hooks/use-profile";
+import { useProfile } from "../../hooks/use-profile";
 
 const mockUseProfile = useProfile as ReturnType<typeof vi.fn>;
 

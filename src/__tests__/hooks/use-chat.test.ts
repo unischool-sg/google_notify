@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useChat } from "../hooks/use-chat";
+import { useChat } from "../../hooks/use-chat";
 
 const mockMethods = vi.hoisted(() => ({
   fetchChatSpaces: vi.fn(),
   fetchChatMessages: vi.fn(),
 }));
 
-vi.mock("../lib/google", () => ({
+vi.mock("../../lib/google", () => ({
   GoogleAPIClient: class {
     fetchChatSpaces = mockMethods.fetchChatSpaces;
     fetchChatMessages = mockMethods.fetchChatMessages;
