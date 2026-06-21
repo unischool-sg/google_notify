@@ -31,6 +31,8 @@ url = "2"
 dotenvy = "0.15"
 tokio = { version = "1", features = ["sync", "time", "rt", "macros"] }
 tauri-plugin-fs = "2.5.1"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 sha2 = "0.10"
 base64 = "0.22"
 auto-launch = "0.5"
