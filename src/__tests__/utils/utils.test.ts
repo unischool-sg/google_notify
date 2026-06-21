@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate } from "../components/unread/utils";
+import { formatDate } from "../../components/unread/utils";
 
 describe("formatDate", () => {
   it("formats an ISO string to Japanese locale", () => {

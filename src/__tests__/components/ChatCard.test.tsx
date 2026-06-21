@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { ChatSpaceSection } from "../components/unread/chat-card";
-import type { ChatSpace, ChatMessage } from "../types/chat";
+import { ChatSpaceSection } from "../../components/unread/chat-card";
+import type { ChatSpace, ChatMessage } from "../../types/chat";
 
 const baseSpace: ChatSpace = {
   name: "spaces/1",

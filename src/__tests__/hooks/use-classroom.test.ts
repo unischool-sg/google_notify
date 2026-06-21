@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useClassroom } from "../hooks/use-classroom";
+import { useClassroom } from "../../hooks/use-classroom";
 
 const mockMethods = vi.hoisted(() => ({
   fetchCourses: vi.fn(),
   fetchCourseWorks: vi.fn(),
 }));
 
-vi.mock("../lib/google", () => ({
+vi.mock("../../lib/google", () => ({
   GoogleAPIClient: class {
     fetchCourses = mockMethods.fetchCourses;
     fetchCourseWorks = mockMethods.fetchCourseWorks;
@@ -15,8 +15,6 @@ vi.mock("../lib/google", () => ({
 }));
 
 beforeEach(() => {
-  // Don't use clearAllMocks - it resets the shared mock functions.
-  // Instead, reset mock state manually.
   mockMethods.fetchCourses.mockReset();
   mockMethods.fetchCourseWorks.mockReset();
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { ClassroomCard } from "../components/unread/classroom-card";
-import type { ClassroomCourseWork } from "../types/classroom";
+import { ClassroomCard } from "../../components/unread/classroom-card";
+import type { ClassroomCourseWork } from "../../types/classroom";
 
 const baseWork: ClassroomCourseWork = {
   courseId: "c1",
@@ -57,7 +57,6 @@ describe("ClassroomCard", () => {
     };
     render(<ClassroomCard work={work} />);
     expect(screen.getByText(/2026\/12\/25/)).toBeInTheDocument();
-    // Should not have a time component
     expect(screen.queryByText(/00:00/)).not.toBeInTheDocument();
   });
 });

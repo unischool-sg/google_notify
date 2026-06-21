@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
 
-// Inline tests for the helper functions used in App.tsx
-// joinPaths and flattenRoutes are module-private, so we re-implement for testing
-
 const joinPaths = (parent: string, child: string): string => {
   if (child === "/") return "/";
   if (child.startsWith("/")) return child;

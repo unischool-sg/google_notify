@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { IndexPage } from "../app/index";
+import { IndexPage } from "../../app/index";
 
-vi.mock("../hooks/use-classroom", () => ({
+vi.mock("../../hooks/use-classroom", () => ({
   useClassroom: vi.fn(),
 }));
 
-import { useClassroom } from "../hooks/use-classroom";
+import { useClassroom } from "../../hooks/use-classroom";
 
 const mockUseClassroom = useClassroom as ReturnType<typeof vi.fn>;
 
