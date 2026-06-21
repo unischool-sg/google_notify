@@ -69,13 +69,15 @@ function App() {
         </Routes>
       </BrowserRouter>
 
-      <UpdateDialog
-        update={pendingUpdate!}
-        isOpen={pendingUpdate !== null}
-        onCancel={handleUpdateCancel}
-        onConfirm={handleUpdateConfirm}
-        isDownloading={isDownloading}
-      />
+      {pendingUpdate && (
+        <UpdateDialog
+          update={pendingUpdate}
+          isOpen
+          onCancel={handleUpdateCancel}
+          onConfirm={handleUpdateConfirm}
+          isDownloading={isDownloading}
+        />
+      )}
     </>
   )
 }
