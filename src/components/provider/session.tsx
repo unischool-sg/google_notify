@@ -40,6 +40,7 @@ const SessionProvider = () => {
       storeTokenData(res);
       setToken(res.access_token);
       setIsLoggedIn(true);
+      location.reload();
     } catch (e) {
       console.error("Login failed:", e);
       alert(`ログインに失敗しました\n${e}`);
