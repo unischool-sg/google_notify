@@ -1,0 +1,59 @@
+name: 'Publish Release'
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.0.0 などのタグがプッシュされたときに起動
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest' # Windows用ビルド環境
+            args: ''
+          - platform: 'macos-latest'   # Mac用ビルド環境（必要に応じて）
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # フロントエンドのセットアップ (Node.jsの例 / Bunやpnpmの場合は適宜変更)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Rustのセットアップ
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      # Rustのビルドキャッシュ（高速化用）
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # フロントエンドの依存関係インストール
+      - name: Install frontend dependencies
+        run: npm install # pnpm yarn bun 等を使用している場合は書き換えてください
+
+      # Tauri公式のビルド・リリースActionを実行
+      - name: Build and Release Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'App ${{ github.ref_name }}'
+          releaseBody: 'See the assets to download this version.'
+          releaseDraft: true # 最初は下書き(Draft)として保存されるので安心です
+          prerelease: false
+          args: ${{ matrix.args }}
