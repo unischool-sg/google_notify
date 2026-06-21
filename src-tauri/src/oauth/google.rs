@@ -42,9 +42,8 @@ impl Drop for OauthServerGuard {
 }
 
 pub(crate) async fn login() -> Result<LoginResponse, String> {
-    let client_id =
-        std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
-    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+    let client_id = env!("GOOGLE_CLIENT_ID");
+    let client_secret = option_env!("GOOGLE_CLIENT_SECRET").map(|s| s.to_string());
     let scopes = vec![
         "openid",
         "email",
@@ -147,7 +146,7 @@ pub(crate) async fn login() -> Result<LoginResponse, String> {
 
     let mut params = vec![
         ("code", code.as_str()),
-        ("client_id", client_id.as_str()),
+        ("client_id", client_id),
         ("code_verifier", code_verifier.as_str()),
         ("redirect_uri", redirect_uri.as_str()),
         ("grant_type", "authorization_code"),
@@ -402,9 +401,8 @@ mod tests {
 }
 
 pub(crate) async fn refresh_access_token(refresh_token: &str) -> Result<LoginResponse, String> {
-    let client_id =
-        std::env::var("GOOGLE_CLIENT_ID").map_err(|_| "GOOGLE_CLIENT_ID not set".to_string())?;
-    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").ok();
+    let client_id = env!("GOOGLE_CLIENT_ID");
+    let client_secret = option_env!("GOOGLE_CLIENT_SECRET").map(|s| s.to_string());
 
     let http = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
