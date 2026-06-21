@@ -71,7 +71,7 @@ function writePartialManifest() {
 
 function mergePartialManifests() {
   const inputDir = process.env.UPDATE_MANIFEST_PARTS_DIR || "update-manifests";
-  const output = process.env.UPDATE_JSON_OUTPUT || "update.json";
+  const output = process.env.UPDATE_JSON_OUTPUT || "latest.json";
   const partFiles = findJsonFiles(inputDir);
   const platforms = {};
 
@@ -225,7 +225,7 @@ function validatePlatforms(platforms) {
   const names = Object.keys(platforms);
 
   if (names.length === 0) {
-    console.error("Merged update.json would not contain any platforms.");
+  console.error("Merged latest.json would not contain any platforms.");
     process.exit(1);
   }
 
