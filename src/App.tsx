@@ -31,10 +31,16 @@ function App() {
     ;(async () => {
       try {
         const { check } = await import("@tauri-apps/plugin-updater");
+        console.log("[Updater] Checking for updates...");
         const update = await check();
-        if (update) setPendingUpdate(update);
-      } catch {
-        // オフラインや未設定時は何もしない
+        if (update) {
+          console.log("[Updater] Update available:", update.version, update.currentVersion);
+          setPendingUpdate(update);
+        } else {
+          console.log("[Updater] No update available (latest)");
+        }
+      } catch (err) {
+        console.warn("[Updater] Check failed:", err);
       }
     })();
   }, []);
