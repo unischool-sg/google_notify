@@ -1,12 +1,12 @@
 import type { LoginResponse } from "../../types/auth";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { SiGoogle } from "react-icons/si";
+import { Box, Typography } from "@mui/material";
 import { useProfile } from "../../hooks/use-profile";
 import { Loading } from "../screen/loading";
+import { GoogleSignInButton } from "../ui/google-sign-in-button";
 import { Modal } from "../ui/modal";
 import { sleep } from "../../lib/sleep";
-import styles from "../../styles/session.module.css";
 
 const storeTokenData = (res: LoginResponse) => {
   localStorage.setItem("access_token", res.access_token);
@@ -57,21 +57,22 @@ const SessionProvider = () => {
       isOpen={!isLoggedIn}
       style={{ minWidth: 0, maxWidth: 400, width: "90vw" }}
     >
-      <div className={styles.card}>
-        <div>
-          <h1 className={styles.title}>ログイン</h1>
-          <p className={styles.subtitle}>Google アカウントで続行</p>
-        </div>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, py: 1 }}>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h1" sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}>
+            ログイン
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Google アカウントで続行
+          </Typography>
+        </Box>
 
-        <button
-          className={styles.loginBtn}
+        <GoogleSignInButton
           onClick={handleButtonClick}
-          disabled={isLoggingIn}
-        >
-          <SiGoogle />
-          {isLoggingIn ? "ログイン中..." : "Sign in with Google"}
-        </button>
-      </div>
+          loading={isLoggingIn}
+          loadingLabel="Signing in..."
+        />
+      </Box>
     </Modal>
   );
   return null;
