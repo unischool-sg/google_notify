@@ -1,11 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Container,
+  Divider,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useClassroom } from "../hooks/use-classroom";
 import { Loading } from "../components/screen/loading";
 import { ClassroomCard } from "../components/unread/classroom-card";
-import styles from "../styles/index.module.css";
 
-const TEST_MODE = false; // false にすると期間フィルタが有効に
+const TEST_MODE = true; // false にすると期間フィルタが有効に
 const INITIAL_DISPLAY_COUNT = 7;
 const LOAD_MORE_COUNT = 10;
 
@@ -50,54 +60,104 @@ const IndexPage = () => {
   if (classroomResult.loading) return <Loading isFullscreen={false} />;
   if (classroomResult.error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.header}><h1>Classroom</h1></div>
-        <section className={styles.section}>
-          <div className={styles.error}>
-            <p>Classroomの取得に失敗しました</p>
-            <p className={styles.errorDetail}>{classroomResult.error.message}</p>
-          </div>
-        </section>
-      </div>
+      <Container maxWidth="md" sx={{ py: 3, height: "100vh", boxSizing: "border-box" }}>
+        <Typography variant="h1" gutterBottom>
+          Classroom
+        </Typography>
+        <Alert severity="error" sx={{ mt: 3 }}>
+          <Typography>Classroomの取得に失敗しました</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ wordBreak: "break-all" }}>
+            {classroomResult.error.message}
+          </Typography>
+        </Alert>
+      </Container>
     );
   }
 
   const unreadTotal = unreadItems.length;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          未読アイテム
-          {unreadTotal > 0 && <span className={styles.badge}>{unreadTotal}</span>}
-        </h1>
-        {userName && <div className={styles.welcome}>ようこそ {userName} さん</div>}
-      </div>
+    <Container
+      maxWidth="md"
+      sx={{
+        py: 3,
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        boxSizing: "border-box",
+      }}
+    >
+      <Box sx={{ flexShrink: 0 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Typography variant="h1">未読アイテム</Typography>
+          {unreadTotal > 0 && (
+            <Chip
+              label={unreadTotal}
+              size="small"
+              color="primary"
+              variant="outlined"
+              sx={{ bgcolor: "primary.light", border: "none", fontWeight: 500 }}
+            />
+          )}
+        </Stack>
+        {userName && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            ようこそ {userName} さん
+          </Typography>
+        )}
+      </Box>
 
-      <section className={styles.section}>
-        <h2>Classroom ({unreadItems.length})</h2>
+      <Box sx={{ mt: 3, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+        <Typography
+          variant="h2"
+          color="text.secondary"
+          sx={{ textTransform: "uppercase", letterSpacing: "0.04em", mb: 1.5 }}
+        >
+          Classroom ({unreadItems.length})
+        </Typography>
         {unreadItems.length === 0 ? (
-          <div className={styles.empty}>未読はありません</div>
+          <Typography variant="body2" color="text.disabled" sx={{ py: 2 }}>
+            未読はありません
+          </Typography>
         ) : (
           <>
-            <div className={styles.scrollArea}>
+            <Box sx={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
               {unreadItems.slice(0, classroomLimit).map((work) => (
                 <ClassroomCard key={work.id} work={work} />
               ))}
-            </div>
+            </Box>
             {classroomLimit < unreadItems.length && (
-              <button className={styles.showMore} onClick={() => setClassroomLimit((p) => p + LOAD_MORE_COUNT)}>
+              <Button
+                fullWidth
+                variant="outlined"
+                color="inherit"
+                onClick={() => setClassroomLimit((p) => p + LOAD_MORE_COUNT)}
+                sx={{ mt: 1, color: "text.secondary" }}
+              >
                 さらに表示
-              </button>
+              </Button>
             )}
           </>
         )}
-      </section>
+      </Box>
 
-      <footer className={styles.footer}>
-        v{appVersion} &middot; Powered by <a href="https://unischool.jp">UniSchool</a> - <a href={developer.href}>{developer.name}</a>
-      </footer>
-    </div>
+      <Divider sx={{ mt: 2 }} />
+      <Typography
+        variant="caption"
+        color="text.disabled"
+        align="center"
+        sx={{ pt: 2, flexShrink: 0, "& a": { color: "text.secondary" } }}
+      >
+        v{appVersion} &middot; Powered by{" "}
+        <Link href="https://unischool.jp" underline="hover" color="inherit">
+          UniSchool
+        </Link>
+        {" - "}
+        <Link href={developer.href} underline="hover" color="inherit">
+          {developer.name}
+        </Link>
+      </Typography>
+    </Container>
   );
 };
 
