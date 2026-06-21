@@ -1,10 +1,11 @@
+import type { LoginResponse } from "../../types/auth";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { SiGoogle } from "react-icons/si";
 import { useProfile } from "../../hooks/use-profile";
 import { Loading } from "../screen/loading";
 import { Modal } from "../ui/modal";
-import type { LoginResponse } from "../../types/auth";
+import { sleep } from "../../lib/sleep";
 import styles from "../../styles/session.module.css";
 
 const storeTokenData = (res: LoginResponse) => {
@@ -40,6 +41,7 @@ const SessionProvider = () => {
       storeTokenData(res);
       setToken(res.access_token);
       setIsLoggedIn(true);
+      await sleep(3);
       location.reload();
     } catch (e) {
       console.error("Login failed:", e);
