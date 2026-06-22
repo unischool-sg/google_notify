@@ -13,7 +13,7 @@ const useClassroom = (token: string | null) => {
 
   useEffect(() => {
     const fetchClassroomWorks = async () => {
-      if (!token) return;
+    if (!token && !hasFetched) return;
 
       const client = new GoogleAPIClient(token);
       
