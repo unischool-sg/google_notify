@@ -33,3 +33,4 @@ tauri-updater-public.key
 
 **/package-lock.json
 **/bun.lock
+memo/**

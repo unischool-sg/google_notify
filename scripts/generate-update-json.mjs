@@ -119,7 +119,15 @@ function baseManifest(platforms) {
 }
 
 function releaseAssetUrl(assetName) {
-  return `https://github.com/${repo}/releases/download/v${version}/${encodeURIComponent(assetName)}`;
+  // tauri-action renames uploaded artifacts:
+  //   "Google Notify.app.tar.gz" → "Google.Notify_universal.app.tar.gz"
+  //   1. spaces → dots
+  //   2. macOS universal: insert _universal before .app.tar.gz
+  let name = assetName.replace(/ /g, '.');
+  if (/\.app\.tar\.gz$/i.test(name) && !/universal/i.test(name)) {
+    name = name.replace(/\.app\.tar\.gz$/i, '_universal.app.tar.gz');
+  }
+  return `https://github.com/${repo}/releases/download/v${version}/${encodeURIComponent(name)}`;
 }
 
 function findSignatureFiles(root) {
