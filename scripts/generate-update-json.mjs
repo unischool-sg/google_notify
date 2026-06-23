@@ -40,10 +40,8 @@ function writePartialManifest() {
   for (const artifact of updateArtifacts) {
     const inferredPlatforms = determinePlatforms(artifact.name);
     const platformKeys = platformHints.length > 0
-      ? inferredPlatforms.filter((platform) => platformHints.includes(platform))
+      ? platformHints
       : inferredPlatforms;
-
-    if (platformKeys.length === 0) continue;
 
     for (const platformKey of platformKeys) {
       const current = platforms[platformKey];
@@ -203,6 +201,10 @@ function determinePlatforms(artifactName) {
 
   if (/aarch64|arm64/i.test(artifactName)) {
     return ["darwin-aarch64"];
+  }
+
+  if (/\.app\.tar\.gz$/i.test(artifactName) && /x86_64|aarch64|arm64|universal/i.test(artifactName) === false) {
+    return ["darwin-x86_64", "darwin-aarch64"];
   }
 
   return ["darwin-x86_64"];
