@@ -13,11 +13,11 @@ const useClassroom = (token: string | null) => {
 
   useEffect(() => {
     const fetchClassroomWorks = async () => {
-    if (!token && !hasFetched) return;
+      if (!token || hasFetched) return;
 
-    setError(null);
+      setError(null);
       const client = new GoogleAPIClient(token);
-      
+
       try {
         const courses = await client.fetchCourses();
         const works = await Promise.all(courses.map(async (course) => {
